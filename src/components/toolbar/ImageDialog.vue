@@ -8,8 +8,14 @@
       <v-card-title class="text-h6">
         Select image
       </v-card-title>
+      <v-file-input
+          @change="saveFile"
+          multiple
+          accept=".jpg"
+          label="Browse.."
 
-      
+      ></v-file-input>
+
       <v-container fluid>
         <v-card elevation="2" v-for="item in items" :key="item.id" class="d-flex align-center pa-2 mb-3">
           <v-checkbox
@@ -46,31 +52,18 @@ export default {
       items: [],
     };
   },
-  created () {
-    this.items = this.predefinedItems.slice(0);
-  },
-  computed: {
-    predefinedItems() {
-      return [
-        {
-          id: 'item1',
-          fileUrl: "https://posterumsoft.com/images/blog_article_cover_2.png",
-          fileName: "item1,"
-        },
-        {
-          id: 'item2',
-          fileUrl: "https://posterumsoft.com/images/blog_article_cover_1.png",
-          fileName: "item2,"
-        },
-        {
-          id: 'item3',
-          fileUrl: "https://posterumsoft.com/images/demystifying-javascript-data-types.jpg",
-          fileName: "item3,"
-        },
-      ]
-    }
-  },
   methods: {
+    saveFile(files){
+      files.forEach((item,index)=>{
+        this.items.push(
+            {
+              id: `${new Date().valueOf()}${index}`,
+              fileUrl: URL.createObjectURL(item),
+              fileName: item.name
+            }
+            )
+      })
+    },
     onSaveClick() {
       const data = this.selected
         .map(id => this.items.find(i => i.id === id))

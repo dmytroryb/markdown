@@ -64,7 +64,9 @@ export default {
         {
           id: "description",
           title: "Description",
-          onClickMethod: () => {},
+          onClickMethod: () => {
+            this.markdownValue += `\n\ndescription Lorem ipsum sit amet.`;
+          },
         },
         {
           id: "quote",
@@ -99,7 +101,8 @@ export default {
         {
           id: "table-row",
           title: "Table row",
-          onClickMethod: () => {},
+          onClickMethod: () => {this.markdownValue
+              += `\n\n[row][col-left]**Make it bold**[/col-left][col-right]**Make it bold**[/col-right][/row]`;},
         },
       ];
     },
@@ -110,6 +113,16 @@ export default {
     },
     onImagesSelect(data) {
       if(Array.isArray(data) && data.length > 0) {
+        // here add method to send to BE
+        const send = new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(data);
+          }, 500);
+        });
+        send.then((value) => {
+          console.log(value);
+          //successfuly saved
+        });
         this.markdownValue += data.map(item => `\n\n![${item.fileName}](${item.fileUrl})`)
       }
     },
