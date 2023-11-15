@@ -6,6 +6,8 @@
           <div class="toolbar-content">
             <template v-for="item in toolbarData">
               <ImageDialog v-if="item.id === 'image'" :key="item.id" @save="onImagesSelect" />
+              <VideoDialog v-else-if="item.id === 'video'" :key="item.id" @save="onVideosSelect" />
+              <FileDialog v-else-if="item.id === 'file'" :key="item.id" @save="onFilesSelect" />
               <button
                 v-else
                 :key="item.id"
@@ -36,11 +38,15 @@
 <script>
 import { marked } from "marked";
 import ImageDialog from "@/components/toolbar/ImageDialog.vue";
+import VideoDialog from "@/components/toolbar/VideoDialog.vue";
+import FileDialog from "@/components/toolbar/FileDialog.vue";
 
 export default {
   name: "MarkdownEditor",
   components: {
+    FileDialog,
     ImageDialog,
+    VideoDialog,
   },
   data: () => ({
     markdownValue: `# Header 1\n\n## Header 2\n\n### Header 3\n\nLorem ipsum sit amet.\n\n**bold** *italic* _underline_\n\n[col-left]Content in the left column[/col-left][col-right]Content in the right column[/col-right]\n\nThis is a [link](https://exemplar.com)\n\n[img=”https://exemplar.com/image.jpg”]\n\n[col-left][img=”https://exemplar.com/image.jpg”][/col-left][col-right][img=”https://exemplar.com/image.jpg”][/col-right]\n\n[table]\n[row][col-left]**Make it bold**[/col-left][col-right]**Make it bold**[/col-right][/row]\n[row][col-left]Content in the left column[/col-left][col-right]Content in the right column[/col-right][/row]\n[row][col-left]Content in the left column[/col-left][col-right]Content in the right column[/col-right][/row]\n[/table]`,
@@ -54,24 +60,22 @@ export default {
         {
           id: "image",
           title: "Image",
-          onClickMethod: () => {},
+          onClickMethod: null,
         },
         {
           id: "video",
           title: "Video",
-          onClickMethod: () => {},
+          onClickMethod: null,
         },
         {
           id: "description",
           title: "Description",
-          onClickMethod: () => {
-            this.markdownValue += `\n\ndescription Lorem ipsum sit amet.`;
-          },
+          onClickMethod: this.onDescriptionClick,
         },
         {
           id: "quote",
           title: "Quote",
-          onClickMethod: () => {},
+          onClickMethod: this.onQuoteClick,
         },
         {
           id: "footnote",
@@ -86,7 +90,7 @@ export default {
         {
           id: "file",
           title: "File",
-          onClickMethod: () => {},
+          onClickMethod: null,
         },
         {
           id: "2col",
@@ -113,18 +117,24 @@ export default {
     },
     onImagesSelect(data) {
       if(Array.isArray(data) && data.length > 0) {
-        // here add method to send to BE
-        const send = new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(data);
-          }, 500);
-        });
-        send.then((value) => {
-          console.log(value);
-          //successfuly saved
-        });
         this.markdownValue += data.map(item => `\n\n![${item.fileName}](${item.fileUrl})`)
       }
+    },
+    onVideosSelect(data) {
+      if(Array.isArray(data) && data.length > 0) {
+        this.markdownValue += data.map(item => `\n\n<video width="270" height="150" controls><source src="${item.fileUrl}" type="${item.fileType}"></video>`)
+      }
+    },
+    onFilesSelect(data) {
+      if(Array.isArray(data) && data.length > 0) {
+        this.markdownValue += data.map(item => `\n\n<a href="${item.fileUrl}" download>Download '${item.fileName}'</a>`)
+      }
+    },
+    onDescriptionClick() {
+      this.markdownValue += "\n\nLorem ipsum sit amet. Description"
+    },
+    onQuoteClick() {
+      this.markdownValue += "\n\n >Lorem ipsum sit amet. Quote"
     },
   },
 };
@@ -181,5 +191,9 @@ export default {
   margin-top: 25px;
   padding-top: 25px;
   border-top: 1px solid #e0e2e3;
+}
+blockquote {
+  border-left: 5px solid lightgray;
+  padding-left: 5px;
 }
 </style>

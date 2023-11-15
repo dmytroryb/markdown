@@ -1,27 +1,27 @@
 <template>
   <v-dialog v-model="dialog" width="720">
     <template v-slot:activator="{ on, attrs }">
-      <button class="toolbar-button" v-bind="attrs" v-on="on">Image</button>
+      <button class="toolbar-button" v-bind="attrs" v-on="on">Video</button>
     </template>
 
     <v-card>
       <v-card-title class="text-h6">
-        Select image
+        Select video
       </v-card-title>
 
       <v-container fluid>
         <v-file-input
-          accept="image/*"
+          accept="video/*"
           multiple
           :loading="loadingStatus"
-          label="Upload images"
-          @change="saveFile"
+          label="Upload videos"
+          @change="onFilesAdded"
         ></v-file-input>
       </v-container>
-
+      
       <v-container fluid>
       <v-row no-gutters>
-        <v-col
+        <v-col 
           v-for="item in items" :key="item.id"
           cols="6"
           class="pa-2"
@@ -31,13 +31,9 @@
                 v-model="selected"
                 :value="item.id"
               ></v-checkbox>
-              <v-img
-                :lazy-src="item.fileUrl"
-                height="150"
-                width="270"
-                contain
-                :src="item.fileUrl"
-              ></v-img>
+              <video width="270" height="150" controls>
+                <source :src="item.fileUrl" :type="item.fileType">
+              </video>
             </v-card>
         </v-col>
       </v-row>
@@ -55,10 +51,10 @@
 </template>
 
 <script>
-import { imagesUploadEmulation } from "@/plugins/server-emulation.js";
+import { videosUploadEmulation } from "@/plugins/server-emulation.js";
 
 export default {
-  name: "ImageDialog",
+  name: "VideoDialog",
   data() {
     return {
       dialog: false,
@@ -75,8 +71,15 @@ export default {
       return [
         {
           id: 'item1',
-          fileUrl: "https://www.exemplar.com/wp-content/uploads/2020/09/logo-transp.png",
-          fileName: "item1"
+          fileUrl: require("@/assets/example/video-example-1.mp4"),
+          fileName: "video-example-1",
+          fileType: "video/mp4",
+        },
+        {
+          id: 'item2',
+          fileUrl: require("@/assets/example/video-example-2.mp4"),
+          fileName: "video-example-2",
+          fileType: "video/mp4",
         },
       ]
     }
@@ -90,11 +93,11 @@ export default {
       this.dialog = false
       this.selected = []
     },
-    async saveFile(files){
+    async onFilesAdded(files) {
       if(this.loadingStatus) { return }
       this.loadingStatus = true
       if(files && files.length > 0) {
-        const data = await imagesUploadEmulation(files)
+        const data = await videosUploadEmulation(files)
         if(Array.isArray(data)) {
           this.items.unshift(...data)
         }
